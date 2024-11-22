@@ -24,18 +24,23 @@ namespace CRUD_MVC.Controllers
         }
         public IActionResult Create()
         {
-            return View();
+            return PartialView("_CreateProductForm", new ProductDto());
         }
+
         [HttpPost]
         public IActionResult Create(ProductDto productDto)
         {
+            // Kiểm tra lỗi khi không chọn ảnh
             if (productDto.ImageFile == null)
             {
-                ModelState.AddModelError("InageFile", "The image file is required");
+                ModelState.AddModelError("ImageFile", "The image file is required");
             }
+
+            // Kiểm tra nếu có lỗi validation
             if (!ModelState.IsValid)
             {
-                return View(productDto);
+                // Trả lại partial view với model và lỗi
+                return PartialView("_CreateProductForm", productDto);
             }
 
             // Tạo tên file mới
@@ -43,7 +48,7 @@ namespace CRUD_MVC.Controllers
             newFileName += Path.GetExtension(productDto.ImageFile!.FileName);
 
             // Đường dẫn đầy đủ của tệp ảnh
-            string imageFullPath = environment.WebRootPath + "/Product/" + newFileName;
+            string imageFullPath = Path.Combine(environment.WebRootPath, "Product", newFileName);
 
             // Lưu file vào đường dẫn đã chỉ định
             using (var stream = System.IO.File.Create(imageFullPath))
@@ -51,10 +56,8 @@ namespace CRUD_MVC.Controllers
                 productDto.ImageFile.CopyTo(stream);
             }
 
-            // save the new product in the database 
-
-            Product product = new Product()
-
+            // Lưu thông tin sản phẩm vào cơ sở dữ liệu
+            var product = new Product()
             {
                 Name = productDto.Name,
                 Brand = productDto.Brand,
@@ -65,11 +68,13 @@ namespace CRUD_MVC.Controllers
                 CreatedAt = DateTime.Now,
             };
 
-
             context.Products.Add(product);
             context.SaveChanges();
+
+            // Sau khi lưu thành công, chuyển hướng về trang Index
             return RedirectToAction("Index", "Products");
         }
+
 
         public IActionResult Edit(int id)
         {
@@ -141,7 +146,7 @@ namespace CRUD_MVC.Controllers
                 product.ImageFileName = newFileName;
             }
 
-   
+
             context.SaveChanges();
             return RedirectToAction("Index", "Products");
 

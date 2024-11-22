@@ -1,20 +1,29 @@
 ﻿@model List<Product>
-@{
-}
-
 
 <h2 class="text-center mb-5">List of Products</h2>
 
 <div class="row mb-5">
     <div class="col">
-        <a class="btn btn-primary" asp-controller="Products" asp-action="Create">New Product</a>
-    </div>
-
-    <div class="col">
-        <!-- Nội dung khác ở đây -->
+        <!-- Nút mở Modal -->
+        <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">New Product</a>
     </div>
 </div>
 
+<!-- Modal Add New Product -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel" class="text-center">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @* Partial View để Add New Product *@
+                @await Html.PartialAsync("_CreateProductForm", new ProductDto())
+            </div>
+        </div>
+    </div>
+</div>
 
 <table class="table">
     <thead>
@@ -26,6 +35,7 @@
             <th>Price</th>
             <th>Image</th>
             <th>Created At</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -39,13 +49,11 @@
                 <td>@(product.Price)$</td>
                 <td><img src="/Product/@product.ImageFileName" width="100" height="100" /></td>
                 <td>@product.CreatedAt.ToString("dd/MM/yyyy")</td>
-
                 <td style="white-space:nowrap">
                     <a class="btn btn-primary btn-sm" asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id">Edit</a>
                     <a class="btn btn-danger btn-sm" asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id">Delete</a>
                 </td>
             </tr>
         }
-
     </tbody>
 </table>
